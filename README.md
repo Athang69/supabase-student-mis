@@ -1,39 +1,55 @@
-# React + Vite
+# Student MIS
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A role-based Student Management Information System built with React (Vite) and Supabase (Postgres, Auth, Row Level Security).
 
-Currently, two official plugins are available:
+## Roles
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Role    | Can do                                                                                       |
+| ------- | -------------------------------------------------------------------------------------------- |
+| Admin   | Everything: students, departments, courses, enrollments, attendance, marks, users and roles  |
+| Teacher | View students, courses and enrollments; take attendance and enter marks for assigned courses |
+| Student | View own attendance, marks and course summary                                                |
 
-## React Compiler
+Security is enforced by Row Level Security policies in the database. The UI hides pages by role, but the database is what actually protects the data.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Setup
 
-## Expanding the Oxlint configuration
+1. Create a Supabase project and run the table, trigger and RLS SQL (Steps 3 to 5 of the setup guide).
+2. Run `supabase/upgrade.sql` once in the Supabase SQL Editor.
+3. Create your first admin user in Authentication > Users, then run:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+   ```sql
+   update profiles set role = 'admin'
+   where id = (select id from auth.users where email = 'you@example.com');
+   ```
 
+4. Copy `.env.example` to `.env` and fill in your project URL and publishable (anon) key.
+5. Install and run:
 
-## Screenshots
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-Postman request
+## Using the app
 
-- Login
-![alt text](image.png)
+1. Sign in as admin. Add departments, then courses, then students.
+2. Create teacher accounts (they sign up on the login page), then open Users and set their role to Teacher. Assign them to courses on the Courses page.
+3. Enroll students into courses on the Enrollments page.
+4. Teachers take attendance and enter marks.
+5. For each student login: the student signs up on the login page, then the admin opens Users and links the account to the student record.
 
-- Admin 
-![alt text](image-1.png)
+## Deploy (Vercel)
 
-- Read Data
-![alt text](image-2.png)
+Import the repo, keep the Vite defaults (build `npm run build`, output `dist`), and add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as environment variables. `vercel.json` already handles page refreshes for client-side routes. Then add the deployed URL to Supabase Authentication > URL Configuration (Site URL and Redirect URLs).
 
-- Create New Student
-![alt text](image-3.png)
+## Project structure
 
-- Update Student Data
-![alt text](image-4.png)
-
-- Delete User
-![alt text](image-5.png)
+```
+src/
+  context/AuthContext.jsx   session and profile (role) state
+  components/               Layout, RoleRoute, shared UI
+  lib/                      supabase client, helpers, course hook
+  pages/                    one file per screen
+supabase/upgrade.sql        extra SQL (email column, indexes, optional stricter policies)
+```
