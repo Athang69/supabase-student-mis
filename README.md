@@ -53,3 +53,23 @@ src/
   pages/                    one file per screen
 supabase/upgrade.sql        extra SQL (email column, indexes, optional stricter policies)
 ```
+
+## Postman Screenshots
+
+- Login 
+![alt text](image.png)
+
+- Admin
+![alt text](image-1.png)
+
+- Read User Data
+![alt text](image-2.png)
+
+- Create New Student
+![alt text](image-3.png)
+
+- Update Student Data
+![alt text](image-4.png)
+
+- Delete User
+![alt text](image-5.png)
